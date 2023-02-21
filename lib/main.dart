@@ -105,7 +105,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -115,22 +114,24 @@ class HomePage extends StatelessWidget {
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-          child: ListView.separated(
-            padding: const EdgeInsets.all(0),
-            scrollDirection: size.width > 393 ? Axis.horizontal : Axis.vertical,
-            separatorBuilder: (context, index) =>
-                const SizedBox(height: 12, width: 12),
-            itemCount: questions.length,
-            itemBuilder: (BuildContext context, int index) {
-              return QuestionContainer(
-                question: questions[index]['question'],
-                questionCategory: questions[index]['category'],
-                questionNumnber: questions[index]['number'],
-                image: questions[index]['image'],
-                size: size,
-              );
-            },
-          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            return ListView.separated(
+              padding: const EdgeInsets.all(0),
+              scrollDirection:
+                  constraints.maxWidth > 393 ? Axis.horizontal : Axis.vertical,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: 12, width: 12),
+              itemCount: questions.length,
+              itemBuilder: (BuildContext context, int index) {
+                return QuestionContainer(
+                  question: questions[index]['question'],
+                  questionCategory: questions[index]['category'],
+                  questionNumnber: questions[index]['number'],
+                  image: questions[index]['image'],
+                );
+              },
+            );
+          }),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: (() => showSnackBar(context)),
@@ -157,20 +158,17 @@ class QuestionContainer extends StatelessWidget {
     required this.questionCategory,
     required this.questionNumnber,
     required this.image,
-    this.size,
   });
 
   final int questionNumnber;
   final String questionCategory;
   final String question;
   final String image;
-  final size;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size.width > 393.0 ? size.width * 0.6 : size.width,
-      height: size.height < 800.0 ? 300 : null,
+      width: 393,
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: Padding(
