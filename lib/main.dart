@@ -23,7 +23,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double sizee = MediaQuery.of(context).size.width;
     final List<Question> questions = [
       Question(
         category: QuestionCategory.physics,
@@ -77,7 +76,7 @@ class HomePage extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor: Colors.blue,
           elevation: 0,
-          title: Text('Quiz poker $sizee'),
+          title: const Text('Quiz poker'),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
