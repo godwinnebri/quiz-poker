@@ -18,102 +18,118 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Question> questions = [
-      Question(
-        category: QuestionCategory.physics,
-        questionText:
-            'What is the law that states that for every action, there is an equal and opposite reaction?',
-      ),
-      Question(
-        category: QuestionCategory.geography,
-        questionText: 'What planet is known as the Red Planet?',
-      ),
-      Question(
-        category: QuestionCategory.art,
-        questionText: 'Who painted the famous artwork, the Mona Lisa?',
-      ),
-      Question(
-        category: QuestionCategory.literature,
-        questionText: 'Who wrote the play Romeo and Juliet?',
-      ),
-      Question(
-        category: QuestionCategory.geography,
-        questionText: 'What is the capital of France?',
-      ),
-      Question(
-        category: QuestionCategory.literature,
-        questionText:
-            'Who is the main character in the book To Kill a Mockingbird?',
-      ),
-      Question(
-        category: QuestionCategory.geography,
-        questionText: 'What is the largest ocean on Earth?',
-      ),
-      Question(
-        category: QuestionCategory.history,
-        questionText: 'Who discovered America?',
-      ),
-      Question(
-        category: QuestionCategory.history,
-        questionText: 'What is the currency used in Japan?',
-      ),
-      Question(
-        category: QuestionCategory.literature,
-        questionText: 'Who composed the opera The Barber of Seville',
-      ),
-      Question(
-        category: QuestionCategory.geography,
-        questionText: 'What is the highest mountain in the solar system?',
-      ),
-    ];
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.blue,
-          elevation: 0,
-          title: const Text('Quiz poker'),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-          child: LayoutBuilder(builder: (context, constraints) {
-            return ListView.separated(
-              padding: const EdgeInsets.all(0),
-              scrollDirection:
-                  constraints.maxWidth > 430 ? Axis.horizontal : Axis.vertical,
-              separatorBuilder: (context, index) =>
-                  const SizedBox(height: 12, width: 12),
-              itemCount: questions.length,
-              itemBuilder: (BuildContext context, int index) {
-                return QuestionContainer(
-                  question: questions[index].questionText,
-                  questionCategory: questions[index].category,
-                  questionNumnber: 1 + index,
-                );
-              },
-            );
-          }),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: (() => showSnackBar(context)),
-          child: const Icon(Icons.add),
-        ));
-  }
+  State<HomePage> createState() => _HomePageState();
+}
 
-  void showSnackBar(BuildContext context) {
-    final scaffold = ScaffoldMessenger.of(context);
-    scaffold.showSnackBar(
-      SnackBar(
-        content: const Text('Hey there! Thanks for clicking'),
-        action: SnackBarAction(
-            label: 'Okay', onPressed: scaffold.hideCurrentSnackBar),
+class _HomePageState extends State<HomePage> {
+  final List<Question> questions = [
+    Question(
+      category: QuestionCategory.physics,
+      questionText:
+          'What is the law that states that for every action, there is an equal and opposite reaction?',
+    ),
+    Question(
+      category: QuestionCategory.geography,
+      questionText: 'What planet is known as the Red Planet?',
+    ),
+    Question(
+      category: QuestionCategory.art,
+      questionText: 'Who painted the famous artwork, the Mona Lisa?',
+    ),
+    Question(
+      category: QuestionCategory.literature,
+      questionText: 'Who wrote the play Romeo and Juliet?',
+    ),
+    Question(
+      category: QuestionCategory.geography,
+      questionText: 'What is the capital of France?',
+    ),
+    Question(
+      category: QuestionCategory.literature,
+      questionText:
+          'Who is the main character in the book To Kill a Mockingbird?',
+    ),
+    Question(
+      category: QuestionCategory.geography,
+      questionText: 'What is the largest ocean on Earth?',
+    ),
+    Question(
+      category: QuestionCategory.history,
+      questionText: 'Who discovered America?',
+    ),
+    Question(
+      category: QuestionCategory.history,
+      questionText: 'What is the currency used in Japan?',
+    ),
+    Question(
+      category: QuestionCategory.literature,
+      questionText: 'Who composed the opera The Barber of Seville',
+    ),
+    Question(
+      category: QuestionCategory.geography,
+      questionText: 'What is the highest mountain in the solar system?',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.blue,
+        elevation: 0,
+        title: const Text('Quiz poker'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+        child: LayoutBuilder(builder: (context, constraints) {
+          return ListView.separated(
+            padding: const EdgeInsets.all(0),
+            scrollDirection:
+                constraints.maxWidth > 430 ? Axis.horizontal : Axis.vertical,
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: 12, width: 12),
+            itemCount: questions.length,
+            itemBuilder: (BuildContext context, int index) {
+              return QuestionContainer(
+                question: questions[index].questionText,
+                questionCategory: questions[index].category,
+                questionNumnber: 1 + index,
+              );
+            },
+          );
+        }),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            questions.add(
+              Question(
+                category: QuestionCategory.art,
+                questionText: 'Enter question text',
+              ),
+            );
+          });
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
+
+  // void showSnackBar(BuildContext context) {
+  //   final scaffold = ScaffoldMessenger.of(context);
+  //   scaffold.showSnackBar(
+  //     SnackBar(
+  //       content: const Text('Hey there! Thanks for clicking'),
+  //       action: SnackBarAction(
+  //           label: 'Okay', onPressed: scaffold.hideCurrentSnackBar),
+  //     ),
+  //   );
+  // }
 }
 
 class QuestionContainer extends StatelessWidget {
