@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -36,53 +38,55 @@ class _HomePageState extends State<HomePage> {
     Question(
       category: QuestionCategory.geography,
       questionText: 'What planet is known as the Red Planet?',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'Mars',
     ),
     Question(
       category: QuestionCategory.art,
       questionText: 'Who painted the famous artwork, the Mona Lisa?',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'Leonardo da Vinci',
     ),
     Question(
       category: QuestionCategory.literature,
       questionText: 'Who wrote the play Romeo and Juliet?',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'William Shakespeare',
     ),
     Question(
       category: QuestionCategory.geography,
       questionText: 'What is the capital of France?',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'Paris',
     ),
     Question(
       category: QuestionCategory.literature,
       questionText:
           'Who is the main character in the book To Kill a Mockingbird?',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'Atticus Finch',
     ),
     Question(
       category: QuestionCategory.geography,
       questionText: 'What is the largest ocean on Earth?',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'The Pacific Ocean',
     ),
     Question(
       category: QuestionCategory.history,
       questionText: 'Who discovered America?',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'Explorer Christopher Columbus',
     ),
     Question(
       category: QuestionCategory.history,
       questionText: 'What is the currency used in Japan?',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'Yen',
     ),
     Question(
       category: QuestionCategory.literature,
       questionText: 'Who composed the opera The Barber of Seville',
-      answer: 'Newton\'s 3rd law of motion',
+      answer: 'Gioachino Rossini',
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final random = Random();
+    final randomNumber = random.nextInt(9 + 1);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -113,6 +117,7 @@ class _HomePageState extends State<HomePage> {
                         index: index,
                         question: questions[index].questionText,
                         questionCategory: questions[index].category,
+                        correctAnswer: questions[index].answer,
                       ),
                     ),
                   );
@@ -124,14 +129,17 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // setState(() {
-          //   questions.add(
-          //     Question(
-          //       category: QuestionCategory.art,
-          //       questionText: 'Enter question text',
-          //     ),
-          //   );
-          // });
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => QuestionDetailScreen(
+                index: randomNumber,
+                question: questions[randomNumber].questionText,
+                questionCategory: questions[randomNumber].category,
+                correctAnswer: questions[randomNumber].answer,
+              ),
+            ),
+          );
         },
         child: const Icon(Icons.add),
       ),
@@ -304,17 +312,75 @@ class Question {
 //                                //
 // ****************************** //
 
-class QuestionDetailScreen extends StatelessWidget {
+class QuestionDetailScreen extends StatefulWidget {
   const QuestionDetailScreen({
-    super.key,
+    Key? key,
     required this.index,
     required this.question,
     required this.questionCategory,
-  });
+    required this.correctAnswer,
+  }) : super(key: key);
 
   final int index;
   final String question;
   final QuestionCategory questionCategory;
+  final String correctAnswer;
+
+  @override
+  _QuestionDetailScreenState createState() => _QuestionDetailScreenState();
+}
+
+class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
+  int _attempts = 0;
+  String? _selectedAnswer;
+
+  void _checkAnswer(String answer) {
+    setState(() {
+      _selectedAnswer = answer;
+      if (answer == widget.correctAnswer) {
+        _attempts = 3;
+
+        _showDialog(true);
+      } else {
+        _attempts++;
+        if (_attempts < 3) {
+          _showDialog(false);
+        } else {
+          _showDialog(false);
+        }
+      }
+    });
+  }
+
+  void _showDialog(bool isCorrect) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(isCorrect ? 'Correct!' : 'Incorrect'),
+          content: Text(
+              isCorrect ? 'You have selected the correct answer.' : _getHint()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _getHint() {
+    switch (_attempts) {
+      case 1:
+        return 'wrong answer';
+      case 2:
+        return 'wrong answer, last chance';
+      default:
+        return 'The correct answer is ${widget.correctAnswer}.';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -323,30 +389,99 @@ class QuestionDetailScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: Colors.blue,
         elevation: 0,
-        title: Text('Question ${index + 1}'),
+        title: Text('Question ${widget.index + 1}'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            QuestionContainer(
-              question: question,
-              questionCategory: questionCategory,
-              questionNumnber: null,
-              onTap: () {},
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Select the corrct answer',
-              style: TextStyle(
-                fontSize: 16,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              QuestionContainer(
+                question: widget.question,
+                questionCategory: widget.questionCategory,
+                questionNumnber: null,
+                onTap: () {},
               ),
-            ),
-            const SizedBox(height: 20),
-            OptionsContainer(
-                answer: 'the correct answer', alphabet: 'A', onTap: () {})
-          ],
+              const SizedBox(height: 40),
+              const Text(
+                'Select the corrct answer',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 20),
+              OptionsContainer(
+                answer: widget.correctAnswer,
+                alphabet: 'A',
+                onTap: () => _checkAnswer(widget.correctAnswer),
+                showCheck: _attempts > 2 ? true : false,
+              ),
+              const SizedBox(height: 20),
+              OptionsContainer(
+                answer: 'Wrong answer',
+                alphabet: 'B',
+                onTap: () => _checkAnswer('Wrong answer'),
+                showCheck: false,
+              ),
+              const SizedBox(height: 20),
+              OptionsContainer(
+                answer: 'Wrong answer',
+                alphabet: 'C',
+                onTap: () => _checkAnswer('Wrong answer'),
+                showCheck: false,
+              ),
+              const SizedBox(height: 24),
+
+              //
+              Container(
+                  child: _attempts < 3
+                      ? Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(60),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Attempts: ',
+                                ),
+                                Text(
+                                  '$_attempts',
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : InkWell(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(24.0),
+                              child: Center(
+                                child: Text(
+                                  'Back to questions',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ))
+            ],
+          ),
         ),
       ),
     );
@@ -362,11 +497,13 @@ class OptionsContainer extends StatelessWidget {
     required this.answer,
     required this.alphabet,
     required this.onTap,
+    required this.showCheck,
   });
 
   final String alphabet;
   final String answer;
   final VoidCallback onTap;
+  final bool showCheck;
   // final String image;
 
   @override
@@ -379,26 +516,48 @@ class OptionsContainer extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 393,
         decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(20)),
+            color: Colors.white, borderRadius: BorderRadius.circular(60)),
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Container(
-                    height: 60,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.blue.withOpacity(0.1),
+                          ),
+                          child: Center(
+                              child: Text(
+                            alphabet,
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
+                        ),
+                        const SizedBox(width: 14),
+                        Flexible(child: Text(answer)),
+                      ],
                     ),
-                    child: Center(child: Text(alphabet)),
                   ),
-                  const SizedBox(width: 14),
-                  Flexible(child: Text(answer)),
+                  Container(
+                    child: showCheck
+                        ? const Icon(
+                            Icons.check,
+                            color: Colors.green,
+                          )
+                        : null,
+                  )
                 ],
               ),
             ],
