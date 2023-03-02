@@ -34,52 +34,72 @@ class _HomePageState extends State<HomePage> {
       questionText:
           'What is the law that states that for every action, there is an equal and opposite reaction?',
       answer: 'Newton\'s 3rd law of motion',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.geography,
       questionText: 'What planet is known as the Red Planet?',
       answer: 'Mars',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.art,
       questionText: 'Who painted the famous artwork, the Mona Lisa?',
       answer: 'Leonardo da Vinci',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.literature,
       questionText: 'Who wrote the play Romeo and Juliet?',
       answer: 'William Shakespeare',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.geography,
       questionText: 'What is the capital of France?',
       answer: 'Paris',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.literature,
       questionText:
           'Who is the main character in the book To Kill a Mockingbird?',
       answer: 'Atticus Finch',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.geography,
       questionText: 'What is the largest ocean on Earth?',
       answer: 'The Pacific Ocean',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.history,
       questionText: 'Who discovered America?',
       answer: 'Explorer Christopher Columbus',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.history,
       questionText: 'What is the currency used in Japan?',
       answer: 'Yen',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
     Question(
       category: QuestionCategory.literature,
       questionText: 'Who composed the opera The Barber of Seville',
       answer: 'Gioachino Rossini',
+      hint1: 'Wrong, try again',
+      hint2: 'wrong, you have one more attempt',
     ),
   ];
 
@@ -102,13 +122,13 @@ class _HomePageState extends State<HomePage> {
             scrollDirection:
                 constraints.maxWidth > 430 ? Axis.horizontal : Axis.vertical,
             separatorBuilder: (context, index) =>
-                const SizedBox(height: 12, width: 12),
+                const SizedBox.square(dimension: 12),
             itemCount: questions.length,
             itemBuilder: (BuildContext context, int index) {
               return QuestionContainer(
                 question: questions[index].questionText,
                 questionCategory: questions[index].category,
-                questionNumnber: 1 + index,
+                questionNumber: 1 + index,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -118,6 +138,8 @@ class _HomePageState extends State<HomePage> {
                         question: questions[index].questionText,
                         questionCategory: questions[index].category,
                         correctAnswer: questions[index].answer,
+                        hint1: questions[index].hint1,
+                        hint2: questions[index].hint2,
                       ),
                     ),
                   );
@@ -137,6 +159,8 @@ class _HomePageState extends State<HomePage> {
                 question: questions[randomNumber].questionText,
                 questionCategory: questions[randomNumber].category,
                 correctAnswer: questions[randomNumber].answer,
+                hint1: questions[randomNumber].hint1,
+                hint2: questions[randomNumber].hint2,
               ),
             ),
           );
@@ -163,22 +187,23 @@ class QuestionContainer extends StatelessWidget {
     super.key,
     required this.question,
     required this.questionCategory,
-    this.questionNumnber,
+    this.questionNumber,
     required this.onTap,
   });
 
-  final int? questionNumnber;
-  final questionCategory;
+  final int? questionNumber;
+  final QuestionCategory questionCategory;
   final String question;
   final VoidCallback onTap;
-  // final String image;
 
   @override
   Widget build(BuildContext context) {
     Question questionn = Question(
       category: questionCategory,
       questionText: question,
-      answer: question,
+      answer: '',
+      hint1: '',
+      hint2: '',
     );
     return GestureDetector(
       onTap: onTap,
@@ -197,7 +222,7 @@ class QuestionContainer extends StatelessWidget {
                   Row(
                     children: [
                       const Text(
-                        'Question',
+                        'Question ',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -206,11 +231,11 @@ class QuestionContainer extends StatelessWidget {
 
                       //
                       Text(
-                        questionNumnber.toString(),
+                        questionNumber.toString(),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: questionNumnber == null
+                          color: questionNumber == null
                               ? Colors.white.withOpacity(0)
                               : Colors.black,
                         ),
@@ -294,8 +319,8 @@ class Question {
   Question({
     required this.category,
     required this.questionText,
-    this.hint1 = 'Wrong, try again',
-    this.hint2 = 'Last chance',
+    required this.hint1,
+    required this.hint2,
     required this.answer,
   });
 
@@ -319,12 +344,17 @@ class QuestionDetailScreen extends StatefulWidget {
     required this.question,
     required this.questionCategory,
     required this.correctAnswer,
+    required this.hint1,
+    required this.hint2,
   }) : super(key: key);
 
   final int index;
   final String question;
   final QuestionCategory questionCategory;
   final String correctAnswer;
+
+  final String hint1;
+  final String hint2;
 
   @override
   _QuestionDetailScreenState createState() => _QuestionDetailScreenState();
@@ -374,9 +404,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   String _getHint() {
     switch (_attempts) {
       case 1:
-        return 'wrong answer';
+        return widget.hint1;
       case 2:
-        return 'wrong answer, last chance';
+        return widget.hint2;
       default:
         return 'The correct answer is ${widget.correctAnswer}.';
     }
@@ -400,7 +430,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
               QuestionContainer(
                 question: widget.question,
                 questionCategory: widget.questionCategory,
-                questionNumnber: null,
+                questionNumber: null,
                 onTap: () {},
               ),
               const SizedBox(height: 40),
