@@ -126,20 +126,15 @@ class _HomePageState extends State<HomePage> {
             itemCount: questions.length,
             itemBuilder: (BuildContext context, int index) {
               return QuestionContainer(
-                question: questions[index].questionText,
-                questionCategory: questions[index].category,
-                questionNumber: 1 + index,
+                question: questions[index],
+                questionNumber: index + 1,
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => QuestionDetailScreen(
                         index: index,
-                        question: questions[index].questionText,
-                        questionCategory: questions[index].category,
-                        correctAnswer: questions[index].answer,
-                        hint1: questions[index].hint1,
-                        hint2: questions[index].hint2,
+                        question: questions[index],
                       ),
                     ),
                   );
@@ -156,11 +151,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => QuestionDetailScreen(
                 index: randomNumber,
-                question: questions[randomNumber].questionText,
-                questionCategory: questions[randomNumber].category,
-                correctAnswer: questions[randomNumber].answer,
-                hint1: questions[randomNumber].hint1,
-                hint2: questions[randomNumber].hint2,
+                question: questions[randomNumber],
               ),
             ),
           );
@@ -186,25 +177,16 @@ class QuestionContainer extends StatelessWidget {
   const QuestionContainer({
     super.key,
     required this.question,
-    required this.questionCategory,
-    this.questionNumber,
+    required this.questionNumber,
     required this.onTap,
   });
 
-  final int? questionNumber;
-  final QuestionCategory questionCategory;
-  final String question;
+  final Question question;
+  final int questionNumber;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    Question questionn = Question(
-      category: questionCategory,
-      questionText: question,
-      answer: '',
-      hint1: '',
-      hint2: '',
-    );
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -250,7 +232,7 @@ class QuestionContainer extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Center(
                         child: Text(
-                          questionCategory.toString(),
+                          question.category.toString(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:
@@ -270,12 +252,12 @@ class QuestionContainer extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       image: DecorationImage(
-                          image: NetworkImage(questionn.category.getImage()),
+                          image: NetworkImage(question.category.getImage()),
                           fit: BoxFit.cover),
                     ),
                   ),
                   const SizedBox(width: 14),
-                  Flexible(child: Text(question)),
+                  Flexible(child: Text(question.questionText.toString())),
                 ],
               ),
             ],
@@ -340,21 +322,12 @@ class Question {
 class QuestionDetailScreen extends StatefulWidget {
   const QuestionDetailScreen({
     Key? key,
-    required this.index,
     required this.question,
-    required this.questionCategory,
-    required this.correctAnswer,
-    required this.hint1,
-    required this.hint2,
+    required this.index,
   }) : super(key: key);
 
   final int index;
-  final String question;
-  final QuestionCategory questionCategory;
-  final String correctAnswer;
-
-  final String hint1;
-  final String hint2;
+  final Question question;
 
   @override
   _QuestionDetailScreenState createState() => _QuestionDetailScreenState();
@@ -367,7 +340,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   void _checkAnswer(String answer) {
     setState(() {
       _selectedAnswer = answer;
-      if (answer == widget.correctAnswer) {
+      if (answer == widget.question.answer) {
         _attempts = 3;
 
         _showDialog(true);
@@ -404,11 +377,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   String _getHint() {
     switch (_attempts) {
       case 1:
-        return widget.hint1;
+        return widget.question.hint1;
       case 2:
-        return widget.hint2;
+        return widget.question.hint2;
       default:
-        return 'The correct answer is ${widget.correctAnswer}.';
+        return 'The correct answer is ${widget.question.answer}.';
     }
   }
 
@@ -429,8 +402,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             children: [
               QuestionContainer(
                 question: widget.question,
-                questionCategory: widget.questionCategory,
-                questionNumber: null,
+                questionNumber: widget.index,
                 onTap: () {},
               ),
               const SizedBox(height: 40),
@@ -442,9 +414,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
               ),
               const SizedBox(height: 20),
               OptionsContainer(
-                answer: widget.correctAnswer,
+                answer: widget.question.answer,
                 alphabet: 'A',
-                onTap: () => _checkAnswer(widget.correctAnswer),
+                onTap: () => _checkAnswer(widget.question.answer),
                 showCheck: _attempts > 2 ? true : false,
               ),
               const SizedBox(height: 20),
