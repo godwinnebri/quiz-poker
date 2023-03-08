@@ -20,93 +20,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class NewQuestions {
-  final List<Question> questions = [];
-}
-// ****************************** //
-//                                //
-//            Nav screen          //
-//                                //
-// ****************************** //
-
-class NavScreen extends StatefulWidget {
-  const NavScreen({super.key});
-
-  @override
-  State<NavScreen> createState() => _NavScreenState();
-}
-
-class _NavScreenState extends State<NavScreen> {
-  int currentIndex = 0;
-
-  void onTap(int index) {
-    setState(() {
-      currentIndex = index;
-      currentIndex == 1 ? showQuestionModal(context) : null;
-    });
-  }
-
-  List Pages = [
-    HomePage(),
-    HomePage(),
-  ];
-
-  void showQuestionModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return AddQuestionPage(
-          newQuestion: '',
-        );
-        setState(() {
-          currentIndex = 0;
-        });
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Pages[currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: onTap,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: currentIndex,
-        showUnselectedLabels: true,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        elevation: 0,
-        items: const [
-          BottomNavigationBarItem(
-            label: ('Home'),
-            icon: Padding(
-              padding: EdgeInsets.only(bottom: 8.0, top: 15),
-              child: Icon(Icons.home),
-            ),
-          ),
-          BottomNavigationBarItem(
-            label: ('Add Question'),
-            icon: Padding(
-              padding: EdgeInsets.only(bottom: 8.0, top: 15),
-              child: Icon(Icons.add),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final List<Question> questions = [
+//question list
+class QuestionList {
+  List<Question> questions = [
     Question(
       category: QuestionCategory.physics,
       questionText:
@@ -180,6 +96,18 @@ class _HomePageState extends State<HomePage> {
       hint2: 'wrong, you have one more attempt',
     ),
   ];
+}
+
+//home page
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final questionList = QuestionList();
 
   @override
   Widget build(BuildContext context) {
@@ -194,33 +122,35 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-        child: LayoutBuilder(builder: (context, constraints) {
-          return ListView.separated(
-            padding: const EdgeInsets.all(0),
-            scrollDirection:
-                constraints.maxWidth > 430 ? Axis.horizontal : Axis.vertical,
-            separatorBuilder: (context, index) =>
-                const SizedBox.square(dimension: 12),
-            itemCount: questions.length,
-            itemBuilder: (BuildContext context, int index) {
-              return QuestionContainer(
-                question: questions[index],
-                questionNumber: index + 1,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => QuestionDetailScreen(
-                        index: index,
-                        question: questions[index],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return ListView.separated(
+              padding: const EdgeInsets.all(0),
+              scrollDirection:
+                  constraints.maxWidth > 430 ? Axis.horizontal : Axis.vertical,
+              separatorBuilder: (context, index) =>
+                  const SizedBox.square(dimension: 12),
+              itemCount: questionList.questions.length,
+              itemBuilder: (BuildContext context, int index) {
+                return QuestionContainer(
+                  question: questionList.questions[index],
+                  questionNumber: index + 1,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QuestionDetailScreen(
+                          index: index,
+                          question: questionList.questions[index],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        }),
+                    );
+                  },
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -229,7 +159,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => QuestionDetailScreen(
                 index: randomNumber,
-                question: questions[randomNumber],
+                question: questionList.questions[randomNumber],
               ),
             ),
           );
@@ -238,17 +168,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  // void showSnackBar(BuildContext context) {
-  //   final scaffold = ScaffoldMessenger.of(context);
-  //   scaffold.showSnackBar(
-  //     SnackBar(
-  //       content: const Text('Hey there! Thanks for clicking'),
-  //       action: SnackBarAction(
-  //           label: 'Okay', onPressed: scaffold.hideCurrentSnackBar),
-  //     ),
-  //   );
-  // }
 }
 
 class QuestionContainer extends StatelessWidget {
@@ -376,19 +295,19 @@ enum QuestionCategory {
 String toTitleCase(String name) => name[0].toUpperCase() + name.substring(1);
 
 class Question {
+  QuestionCategory category;
+  String questionText;
+  String answer;
+  String hint1;
+  String hint2;
+
   Question({
     required this.category,
     required this.questionText,
+    required this.answer,
     required this.hint1,
     required this.hint2,
-    required this.answer,
   });
-
-  final QuestionCategory category;
-  final String questionText;
-  final String hint1;
-  final String hint2;
-  final String answer;
 }
 
 // ****************************** //
@@ -585,15 +504,9 @@ class OptionsContainer extends StatelessWidget {
   final String answer;
   final VoidCallback onTap;
   final bool showCheck;
-  // final String image;
 
   @override
   Widget build(BuildContext context) {
-    // Question questionn = Question(
-    //   category: questionCategory,
-    //   questionText: question,
-    //   answer: question,
-    // );
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -656,18 +569,13 @@ class OptionsContainer extends StatelessWidget {
 // ****************************** //
 
 class AddQuestionPage extends StatelessWidget {
-  AddQuestionPage({
-    super.key,
-    this.newQuestion,
-    this.newQuestionAnswer,
-  });
-  late String? newQuestion;
-  late String? newQuestionAnswer;
+  final Function addQuestionCallback;
+  const AddQuestionPage(this.addQuestionCallback, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    // String newQuestion = '';
-    // String newQuestionAnswer = '';
+    String newQuestion = '';
+    String newQuestionAnswer = '';
 
     return Container(
       color: const Color(0xff727375),
@@ -704,47 +612,39 @@ class AddQuestionPage extends StatelessWidget {
               //Question textfield
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Container(
+                child: SizedBox(
                   height: 54,
                   child: TextFormField(
-                    // autofocus: true,
-                    //focusNode: _focusNode,
-                    //  onTap: _requestFocus,
-                    // controller: inputController,
                     onChanged: (newText) {
                       newQuestion = newText;
                     },
                     keyboardType: TextInputType.text,
                     style: const TextStyle(fontSize: 16, color: Colors.black),
                     decoration: InputDecoration(
-                      label: Text('Task title'),
-                      labelStyle: const TextStyle(
-                          // color: _focusNode.hasFocus ? primaryColor : grey,
-                          fontSize: 16),
-
-                      // prefixIcon: Icon(Icons.email),
+                      label: const Text('Question'),
+                      labelStyle: const TextStyle(fontSize: 16),
                       filled: false,
-                      //fillColor: accentColor,
                       hintText: 'Enter Question',
                       hintStyle: TextStyle(color: Colors.grey.withOpacity(.75)),
                       contentPadding: const EdgeInsets.symmetric(
                           vertical: 20.0, horizontal: 18.0),
                       border: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
                       ),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.blue, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
                       ),
                       errorBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.red, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors.grey.withOpacity(0.2), width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(60.0)),
                       ),
                     ),
                   ),
@@ -756,74 +656,66 @@ class AddQuestionPage extends StatelessWidget {
               //answer textfield
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Container(
+                child: SizedBox(
                   height: 54,
                   child: TextFormField(
-                    // autofocus: true,
-                    //focusNode: _focusNode,
-                    //  onTap: _requestFocus,
-                    // controller: inputController,
                     onChanged: (newText) {
                       newQuestionAnswer = newText;
                     },
                     keyboardType: TextInputType.text,
                     style: const TextStyle(fontSize: 16, color: Colors.black),
                     decoration: InputDecoration(
-                      label: Text('Question answer'),
-                      labelStyle: const TextStyle(
-                          // color: _focusNode.hasFocus ? primaryColor : grey,
-                          fontSize: 16),
-
-                      // prefixIcon: Icon(Icons.email),
+                      label: const Text('Question answer'),
+                      labelStyle: const TextStyle(fontSize: 16),
                       filled: false,
-                      //fillColor: accentColor,
                       hintText: 'Enter task category',
                       hintStyle: TextStyle(color: Colors.grey.withOpacity(.75)),
                       contentPadding: const EdgeInsets.symmetric(
                           vertical: 20.0, horizontal: 18.0),
                       border: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
                       ),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.blue, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
                       ),
                       errorBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.red, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors.grey.withOpacity(0.2), width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(60.0)),
                       ),
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-              // PrimaryButton(
-              //   buttonText: "Create task",
-              //   onPressed: () {
-              //     //do something
-              //     addTaskCallback(newTaskTitle);
-              //   },
-              // )
-              InkWell(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(60),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: Center(
-                      child: Text(
-                        'Add',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: InkWell(
+                  onTap: () {
+                    newQuestion == ''
+                        ? null
+                        : addQuestionCallback(newQuestion, newQuestionAnswer);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(60),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: Center(
+                        child: Text(
+                          'Add',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                       ),
                     ),
                   ),
@@ -831,6 +723,88 @@ class AddQuestionPage extends StatelessWidget {
               ),
             ],
           )),
+    );
+  }
+}
+
+// Nav screen
+class NavScreen extends StatefulWidget {
+  const NavScreen({super.key});
+
+  @override
+  State<NavScreen> createState() => _NavScreenState();
+}
+
+class _NavScreenState extends State<NavScreen> {
+  final questoinList = QuestionList();
+
+  int currentIndex = 0;
+
+  void onTap(int index) {
+    setState(() {
+      currentIndex = index;
+      currentIndex == 1 ? showQuestionModal(context) : null;
+    });
+  }
+
+  List pages = [
+    const HomePage(),
+    const HomePage(),
+  ];
+
+  void showQuestionModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => AddQuestionPage(
+        (newQuestion, newQuestionAnswer) {
+          setState(() {
+            questoinList.questions.add(
+              Question(
+                category: QuestionCategory.art,
+                questionText: newQuestion,
+                hint1: 'hint1',
+                hint2: 'hint2',
+                answer: newQuestionAnswer,
+              ),
+            );
+          });
+
+          Navigator.pop(context);
+          currentIndex = 0;
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: pages[currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: onTap,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: currentIndex,
+        showUnselectedLabels: true,
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        elevation: 0,
+        items: const [
+          BottomNavigationBarItem(
+            label: ('Home'),
+            icon: Padding(
+              padding: EdgeInsets.only(bottom: 8.0, top: 15),
+              child: Icon(Icons.home),
+            ),
+          ),
+          BottomNavigationBarItem(
+            label: ('Add Question'),
+            icon: Padding(
+              padding: EdgeInsets.only(bottom: 8.0, top: 15),
+              child: Icon(Icons.add),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
