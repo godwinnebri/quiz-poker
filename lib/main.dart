@@ -15,7 +15,85 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           primarySwatch: Colors.blue,
           scaffoldBackgroundColor: const Color(0xffF8FBFF)),
-      home: const HomePage(),
+      home: const NavScreen(),
+    );
+  }
+}
+
+class NewQuestions {
+  final List<Question> questions = [];
+}
+// ****************************** //
+//                                //
+//            Nav screen          //
+//                                //
+// ****************************** //
+
+class NavScreen extends StatefulWidget {
+  const NavScreen({super.key});
+
+  @override
+  State<NavScreen> createState() => _NavScreenState();
+}
+
+class _NavScreenState extends State<NavScreen> {
+  int currentIndex = 0;
+
+  void onTap(int index) {
+    setState(() {
+      currentIndex = index;
+      currentIndex == 1 ? showQuestionModal(context) : null;
+    });
+  }
+
+  List Pages = [
+    HomePage(),
+    HomePage(),
+  ];
+
+  void showQuestionModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return AddQuestionPage(
+          newQuestion: '',
+        );
+        setState(() {
+          currentIndex = 0;
+        });
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Pages[currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: onTap,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: currentIndex,
+        showUnselectedLabels: true,
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        elevation: 0,
+        items: const [
+          BottomNavigationBarItem(
+            label: ('Home'),
+            icon: Padding(
+              padding: EdgeInsets.only(bottom: 8.0, top: 15),
+              child: Icon(Icons.home),
+            ),
+          ),
+          BottomNavigationBarItem(
+            label: ('Add Question'),
+            icon: Padding(
+              padding: EdgeInsets.only(bottom: 8.0, top: 15),
+              child: Icon(Icons.add),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -437,51 +515,52 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
 
               //
               Container(
-                  child: _attempts < 3
-                      ? Container(
+                child: _attempts < 3
+                    ? Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(60),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Attempts: ',
+                              ),
+                              Text(
+                                '$_attempts',
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.blue,
                             borderRadius: BorderRadius.circular(60),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'Attempts: ',
-                                ),
-                                Text(
-                                  '$_attempts',
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : InkWell(
-                          onTap: () => Navigator.pop(context),
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: const Padding(
-                              padding: EdgeInsets.all(24.0),
-                              child: Center(
-                                child: Text(
-                                  'Back to questions',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16),
-                                ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(24.0),
+                            child: Center(
+                              child: Text(
+                                'Back to questions',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
                               ),
                             ),
                           ),
-                        ))
+                        ),
+                      ),
+              ),
             ],
           ),
         ),
@@ -566,6 +645,192 @@ class OptionsContainer extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ****************************** //
+//                                //
+//       Add Question screen      //
+//                                //
+// ****************************** //
+
+class AddQuestionPage extends StatelessWidget {
+  AddQuestionPage({
+    super.key,
+    this.newQuestion,
+    this.newQuestionAnswer,
+  });
+  late String? newQuestion;
+  late String? newQuestionAnswer;
+
+  @override
+  Widget build(BuildContext context) {
+    // String newQuestion = '';
+    // String newQuestionAnswer = '';
+
+    return Container(
+      color: const Color(0xff727375),
+      child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+          ),
+
+          //
+
+          child: Column(
+            children: [
+              const SizedBox(height: 15),
+              Container(
+                height: 5,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Add Question",
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+              ),
+              const SizedBox(height: 24),
+
+              //Question textfield
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: Container(
+                  height: 54,
+                  child: TextFormField(
+                    // autofocus: true,
+                    //focusNode: _focusNode,
+                    //  onTap: _requestFocus,
+                    // controller: inputController,
+                    onChanged: (newText) {
+                      newQuestion = newText;
+                    },
+                    keyboardType: TextInputType.text,
+                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                    decoration: InputDecoration(
+                      label: Text('Task title'),
+                      labelStyle: const TextStyle(
+                          // color: _focusNode.hasFocus ? primaryColor : grey,
+                          fontSize: 16),
+
+                      // prefixIcon: Icon(Icons.email),
+                      filled: false,
+                      //fillColor: accentColor,
+                      hintText: 'Enter Question',
+                      hintStyle: TextStyle(color: Colors.grey.withOpacity(.75)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 20.0, horizontal: 18.0),
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors.grey.withOpacity(0.2), width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              //answer textfield
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: Container(
+                  height: 54,
+                  child: TextFormField(
+                    // autofocus: true,
+                    //focusNode: _focusNode,
+                    //  onTap: _requestFocus,
+                    // controller: inputController,
+                    onChanged: (newText) {
+                      newQuestionAnswer = newText;
+                    },
+                    keyboardType: TextInputType.text,
+                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                    decoration: InputDecoration(
+                      label: Text('Question answer'),
+                      labelStyle: const TextStyle(
+                          // color: _focusNode.hasFocus ? primaryColor : grey,
+                          fontSize: 16),
+
+                      // prefixIcon: Icon(Icons.email),
+                      filled: false,
+                      //fillColor: accentColor,
+                      hintText: 'Enter task category',
+                      hintStyle: TextStyle(color: Colors.grey.withOpacity(.75)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 20.0, horizontal: 18.0),
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors.grey.withOpacity(0.2), width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // PrimaryButton(
+              //   buttonText: "Create task",
+              //   onPressed: () {
+              //     //do something
+              //     addTaskCallback(newTaskTitle);
+              //   },
+              // )
+              InkWell(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(60),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: Center(
+                      child: Text(
+                        'Add',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          )),
     );
   }
 }
