@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
 
 //question list
 class QuestionList {
-  List<Question> questions = [
+  static List<Question> questions = [
     Question(
       category: QuestionCategory.physics,
       questionText:
@@ -107,8 +107,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final questionList = QuestionList();
-
   @override
   Widget build(BuildContext context) {
     final random = Random();
@@ -130,10 +128,10 @@ class _HomePageState extends State<HomePage> {
                   constraints.maxWidth > 430 ? Axis.horizontal : Axis.vertical,
               separatorBuilder: (context, index) =>
                   const SizedBox.square(dimension: 12),
-              itemCount: questionList.questions.length,
+              itemCount: QuestionList.questions.length,
               itemBuilder: (BuildContext context, int index) {
                 return QuestionContainer(
-                  question: questionList.questions[index],
+                  question: QuestionList.questions[index],
                   questionNumber: index + 1,
                   onTap: () {
                     Navigator.push(
@@ -141,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                       MaterialPageRoute(
                         builder: (context) => QuestionDetailScreen(
                           index: index,
-                          question: questionList.questions[index],
+                          question: QuestionList.questions[index],
                         ),
                       ),
                     );
@@ -159,7 +157,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => QuestionDetailScreen(
                 index: randomNumber,
-                question: questionList.questions[randomNumber],
+                question: QuestionList.questions[randomNumber],
               ),
             ),
           );
@@ -568,10 +566,15 @@ class OptionsContainer extends StatelessWidget {
 //                                //
 // ****************************** //
 
-class AddQuestionPage extends StatelessWidget {
+class AddQuestionPage extends StatefulWidget {
   final Function addQuestionCallback;
   const AddQuestionPage(this.addQuestionCallback, {super.key});
 
+  @override
+  State<AddQuestionPage> createState() => _AddQuestionPageState();
+}
+
+class _AddQuestionPageState extends State<AddQuestionPage> {
   @override
   Widget build(BuildContext context) {
     String newQuestion = '';
@@ -701,7 +704,8 @@ class AddQuestionPage extends StatelessWidget {
                   onTap: () {
                     newQuestion == ''
                         ? null
-                        : addQuestionCallback(newQuestion, newQuestionAnswer);
+                        : widget.addQuestionCallback(
+                            newQuestion, newQuestionAnswer);
                   },
                   child: Container(
                     width: double.infinity,
@@ -736,8 +740,6 @@ class NavScreen extends StatefulWidget {
 }
 
 class _NavScreenState extends State<NavScreen> {
-  final questoinList = QuestionList();
-
   int currentIndex = 0;
 
   void onTap(int index) {
@@ -758,7 +760,7 @@ class _NavScreenState extends State<NavScreen> {
       builder: (context) => AddQuestionPage(
         (newQuestion, newQuestionAnswer) {
           setState(() {
-            questoinList.questions.add(
+            QuestionList.questions.add(
               Question(
                 category: QuestionCategory.art,
                 questionText: newQuestion,
