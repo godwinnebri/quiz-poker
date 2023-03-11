@@ -264,6 +264,7 @@ class QuestionContainer extends StatelessWidget {
 }
 
 enum QuestionCategory {
+  category,
   physics,
   geography,
   art,
@@ -274,6 +275,8 @@ enum QuestionCategory {
   String toString() => toTitleCase(name);
   String getImage() {
     switch (this) {
+      case QuestionCategory.category:
+        return 'https://icons.veryicon.com/png/o/commerce-shopping/icon-of-lvshan-valley-mobile-terminal/home-category.png';
       case QuestionCategory.art:
         return 'https://guardian.ng/wp-content/uploads/2022/12/African-art-scaled.jpeg';
       case QuestionCategory.geography:
@@ -575,10 +578,14 @@ class AddQuestionPage extends StatefulWidget {
 }
 
 class _AddQuestionPageState extends State<AddQuestionPage> {
+  QuestionCategory? selectedCategory = QuestionCategory.values.first;
+
+  final TextEditingController questionController = TextEditingController();
+  final TextEditingController answerController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    String newQuestion = '';
-    String newQuestionAnswer = '';
+    QuestionCategory? newCategory = selectedCategory;
 
     return Container(
       color: const Color(0xff727375),
@@ -591,141 +598,205 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
 
           //
 
-          child: Column(
-            children: [
-              const SizedBox(height: 15),
-              Container(
-                height: 5,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Add Question",
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-              ),
-              const SizedBox(height: 24),
-
-              //Question textfield
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: SizedBox(
-                  height: 54,
-                  child: TextFormField(
-                    onChanged: (newText) {
-                      newQuestion = newText;
-                    },
-                    keyboardType: TextInputType.text,
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                    decoration: InputDecoration(
-                      label: const Text('Question'),
-                      labelStyle: const TextStyle(fontSize: 16),
-                      filled: false,
-                      hintText: 'Enter Question',
-                      hintStyle: TextStyle(color: Colors.grey.withOpacity(.75)),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 20.0, horizontal: 18.0),
-                      border: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
-                      ),
-                      errorBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Colors.grey.withOpacity(0.2), width: 1.0),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(60.0)),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              //answer textfield
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: SizedBox(
-                  height: 54,
-                  child: TextFormField(
-                    onChanged: (newText) {
-                      newQuestionAnswer = newText;
-                    },
-                    keyboardType: TextInputType.text,
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                    decoration: InputDecoration(
-                      label: const Text('Question answer'),
-                      labelStyle: const TextStyle(fontSize: 16),
-                      filled: false,
-                      hintText: 'Enter task category',
-                      hintStyle: TextStyle(color: Colors.grey.withOpacity(.75)),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 20.0, horizontal: 18.0),
-                      border: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
-                      ),
-                      errorBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(60.0)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Colors.grey.withOpacity(0.2), width: 1.0),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(60.0)),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: InkWell(
-                  onTap: () {
-                    newQuestion == ''
-                        ? null
-                        : widget.addQuestionCallback(
-                            newQuestion, newQuestionAnswer);
-                  },
-                  child: Container(
-                    width: double.infinity,
+          child: SingleChildScrollView(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 15),
+                  Container(
+                    height: 5,
+                    width: 40,
                     decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(60),
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: Center(
-                        child: Text(
-                          'Add',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Add Question",
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                  const SizedBox(height: 24),
+
+                  //Question textfield
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: SizedBox(
+                      height: 54,
+                      child: TextFormField(
+                        controller: questionController,
+                        keyboardType: TextInputType.text,
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.black),
+                        decoration: InputDecoration(
+                          label: const Text('Question'),
+                          labelStyle: const TextStyle(fontSize: 16),
+                          filled: false,
+                          hintText: 'Enter Question',
+                          hintStyle:
+                              TextStyle(color: Colors.grey.withOpacity(.75)),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 20.0, horizontal: 18.0),
+                          border: const OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 1.0),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(60.0)),
+                          ),
+                          focusedBorder: const OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.blue, width: 1.0),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(60.0)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Colors.grey.withOpacity(0.2),
+                                width: 1.0),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(60.0)),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+
+                  const SizedBox(height: 18),
+
+                  //answer textfield
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: SizedBox(
+                      height: 54,
+                      child: TextFormField(
+                        controller: answerController,
+                        keyboardType: TextInputType.text,
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.black),
+                        decoration: InputDecoration(
+                          label: const Text('Question answer'),
+                          labelStyle: const TextStyle(fontSize: 16),
+                          filled: false,
+                          hintText: 'Enter task category',
+                          hintStyle:
+                              TextStyle(color: Colors.grey.withOpacity(.75)),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 20.0, horizontal: 18.0),
+                          border: const OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 1.0),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(60.0)),
+                          ),
+                          focusedBorder: const OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.blue, width: 1.0),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(60.0)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Colors.grey.withOpacity(0.2),
+                                width: 1.0),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(60.0)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        margin: const EdgeInsets.symmetric(horizontal: 28),
+                        width: constraints.maxWidth,
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: Colors.grey.withOpacity(0.2)),
+                          borderRadius: BorderRadius.circular(60),
+                        ),
+                        child: DropdownButton<QuestionCategory>(
+                          value: selectedCategory,
+                          onChanged: (QuestionCategory? newValue) {
+                            setState(() {
+                              selectedCategory = newValue;
+                            });
+                          },
+                          dropdownColor: Colors.white,
+                          icon: Padding(
+                            padding: EdgeInsets.only(
+                              left: constraints.maxWidth * 0.4,
+                            ), // set padding here
+                            child: const Icon(Icons.arrow_drop_down),
+                          ),
+                          iconSize: 36,
+                          elevation: 0,
+                          style: const TextStyle(color: Colors.black),
+                          underline: Container(
+                            height: 0,
+                          ),
+                          itemHeight: 58,
+                          items: QuestionCategory.values.map((category) {
+                            return DropdownMenuItem<QuestionCategory>(
+                              value: category,
+                              child: Row(
+                                children: [
+                                  Image.network(category.getImage(),
+                                      width: 25, height: 25),
+                                  const SizedBox(width: 25),
+                                  Text(category.toString()),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: InkWell(
+                      onTap: () {
+                        questionController.text == '' ||
+                                answerController.text == '' ||
+                                newCategory == QuestionCategory.category
+                            ? null
+                            : widget.addQuestionCallback(
+                                questionController.text,
+                                answerController.text,
+                                newCategory,
+                              );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(60),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: Center(
+                            child: Text(
+                              'Add',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           )),
     );
   }
@@ -758,15 +829,15 @@ class _NavScreenState extends State<NavScreen> {
     showModalBottomSheet(
       context: context,
       builder: (context) => AddQuestionPage(
-        (newQuestion, newQuestionAnswer) {
+        (newQuestion, newQuestionAnswer, newCategory) {
           setState(() {
             QuestionList.questions.add(
               Question(
-                category: QuestionCategory.art,
                 questionText: newQuestion,
-                hint1: 'hint1',
-                hint2: 'hint2',
                 answer: newQuestionAnswer,
+                category: newCategory,
+                hint1: 'Wrong, try again',
+                hint2: 'wrong, you have one more attempt',
               ),
             );
           });
